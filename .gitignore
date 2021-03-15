@@ -16,3 +16,4 @@ vignettes/*.pdf
 # the local check files
 ..Rcheck
 
+NC Voter File/ncvoter_Statewide.txt
