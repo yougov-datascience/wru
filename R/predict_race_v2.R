@@ -170,7 +170,7 @@ predict_race_new <- function(voter.file, namesToUse = 'last', census.geo, census
                                     geo = "tract",
                                     census.data = census.data, retry = retry)
   }
-
+  
   if (census.geo == "county") {
     if (!("county" %in% names(voter.file))) {
       stop("voter.file object needs to have a column named county.")

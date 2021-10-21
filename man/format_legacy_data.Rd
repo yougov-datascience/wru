@@ -4,7 +4,7 @@
 \alias{format_legacy_data}
 \title{Legacy data formatting function.}
 \usage{
-format_legacy_data(legacyFilePath, outFile = NULL)
+format_legacy_data(legacyFilePath, state, outFile = NULL)
 }
 \arguments{
 \item{legacyFilePath}{A character vector giving the location of a legacy census data folder,

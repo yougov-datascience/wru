@@ -24,7 +24,7 @@
 
 #'
 #' @export
-format_legacy_data <- function(legacyFilePath, outFile = NULL) {
+format_legacy_data <- function(legacyFilePath, state, outFile = NULL) {
   
   # aggregation levels to convert (county, tract, block group, and block)
   summaryLevels <- c('050', '140', '150', '750')
