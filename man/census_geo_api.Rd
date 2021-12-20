@@ -49,7 +49,7 @@ Output will be an object of class \code{list}, indexed by state names. It will
 \code{census_geo_api} retrieves U.S. Census geographic data for a given state.
 }
 \details{
-This function allows users to download U.S. Census 2010 geographic data, 
+This function allows users to download U.S. Census 2020 geographic data, 
 at either the county, tract, block, or place level, for a particular state.
 }
 \examples{
