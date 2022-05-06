@@ -98,7 +98,8 @@
 ## Race Prediction Function
 predict_race <- function(voter.file, 
                            census.surname = TRUE, surname.only = FALSE, surname.year = 2010, 
-                           census.geo, census.key, census.data = NA, age = FALSE, sex = FALSE, party, impute.missing = TRUE, retry = 3) {
+                           census.geo, census.key, census.data = NA, age = FALSE, sex = FALSE, party, impute.missing = TRUE, retry = 3, 
+                         use_counties = FALSE) {
   
   if (!missing(census.geo) && (census.geo == "precinct")) {
     # geo <- "precinct"
@@ -189,7 +190,9 @@ predict_race <- function(voter.file,
                                 geo = "place", 
                                 age = age, 
                                 sex = sex, 
-                                census.data = census.data, retry = retry)
+                                census.data = census.data, 
+                                retry = retry,
+                                use_counties = use_counties)
   }
   
   if (census.geo == "block") {
@@ -202,7 +205,9 @@ predict_race <- function(voter.file,
                                 geo = "block", 
                                 age = age, 
                                 sex = sex, 
-                                census.data = census.data, retry = retry)
+                                census.data = census.data, 
+                                retry = retry,
+                                use_counties = use_counties)
   }
   
   if (census.geo == "precinct") {
@@ -220,7 +225,9 @@ predict_race <- function(voter.file,
                                 geo = "tract", 
                                 age = age, 
                                 sex = sex, 
-                                census.data = census.data, retry = retry)
+                                census.data = census.data, 
+                                retry = retry,
+                                use_counties = use_counties)
   }
   
   if (census.geo == "county") {
@@ -234,6 +241,9 @@ predict_race <- function(voter.file,
                                 age = age, 
                                 sex = sex, 
                                 census.data = census.data, retry = retry)
+    
+    if(is.null(voter.file))
+      return(NULL)
   }
   
   ## Pr(Race | Surname, Geolocation)

@@ -37,6 +37,8 @@
 #' \code{\var{census.data}} must have the same value as the \code{\var{sex}} option here.
 #' If \code{\var{census.data}} is missing, Census geographic data will be obtained via Census API. 
 #' @param retry The number of retries at the census website if network interruption occurs.
+#' @param use_counties Defaults to \code{FALSE}. If \code{TRUE}, subsets pulls for block and tract
+#' level by counties in the \code{\var{voter.file}}
 #' @return Output will be an object of class \code{data.frame}. It will 
 #'  consist of the original user-input data with additional columns of 
 #'  Census data.
@@ -48,7 +50,7 @@
 #' age = TRUE, sex = TRUE)}
 #'
 #' @export
-census_helper <- function(key, voter.file, states = "all", geo = "tract", age = FALSE, sex = FALSE, census.data = NA, retry = 3) {
+census_helper <- function(key, voter.file, states = "all", geo = "tract", age = FALSE, sex = FALSE, census.data = NA, retry = 3, use_counties = FALSE) {
   
   if (is.na(census.data) || (typeof(census.data) != "list")) {
     toDownload = TRUE
@@ -77,7 +79,7 @@ census_helper <- function(key, voter.file, states = "all", geo = "tract", age = 
     if (geo == "place") {
       geo.merge <- c("place")
       if ((toDownload) || (is.null(census.data[[state]])) || (census.data[[state]]$age != age) || (census.data[[state]]$sex != sex)) {
-        census <- census_geo_api(key, state, geo = "place", age, sex, retry)
+        census <- census_geo_api(key, state, geo = "place", age, sex, retry, counties = unique(voter.file$counties))
       } else {
         census <- census.data[[toupper(state)]]$place
       }
@@ -95,7 +97,11 @@ census_helper <- function(key, voter.file, states = "all", geo = "tract", age = 
     if (geo == "tract") {
       geo.merge <- c("county", "tract")
       if ((toDownload) || (is.null(census.data[[state]])) || (census.data[[state]]$age != age) || (census.data[[state]]$sex != sex)) {
-        census <- census_geo_api(key, state, geo = "tract", age, sex, retry)
+        if(use_counties) {
+          census <- census_geo_api(key, state, geo = "tract", age, sex, retry, counties = unique(voter.file$county))
+        } else {
+          census <- census_geo_api(key, state, geo = "tract", age, sex, retry)
+        }
       } else {
         census <- census.data[[toupper(state)]]$tract
       }
@@ -104,10 +110,20 @@ census_helper <- function(key, voter.file, states = "all", geo = "tract", age = 
     if (geo == "block") {
       geo.merge <- c("county", "tract", "block")
       if ((toDownload) || (is.null(census.data[[state]])) || (census.data[[state]]$age != age) || (census.data[[state]]$sex != sex)) {
-        census <- census_geo_api(key, state, geo = "block", age, sex, retry)
+        if(use_counties) {
+          census <- census_geo_api(key, state, geo = "block", age, sex, retry, counties = unique(voter.file$county))
+        } else {
+          census <- census_geo_api(key, state, geo = "block", age, sex, retry)
+        }
+
       } else {
         census <- census.data[[toupper(state)]]$block
       }
+    }
+    
+    if(is.null(census) & use_counties) {
+      message('No intersecting counties in counties supplied')
+      return(NULL)
     }
     
     census$state <- state

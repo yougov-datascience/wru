@@ -24,6 +24,8 @@
 #' @param save_temp File indicating where to save the temporary outputs. 
 #' Defaults to NULL. If specified, the function will look for an .RData file
 #' with the same format as the expected output. 
+#' @param counties A vector of counties continaed in your data. If \code{NULL}, all counties are pulled.
+#' Useful for smaller predictions where only a few counties are considered. Must be zero padded.
 #' @return Output will be an object of class \code{list}, indexed by state names. It will 
 #'  consist of the original user-input data with additional columns of Census geographic data.
 #'
@@ -39,7 +41,7 @@
 #' @importFrom furrr future_map_dfr
 #' @importFrom purrr map_dfr
 #' @export
-census_geo_api <- function(key, state, geo = "tract", age = FALSE, sex = FALSE, retry = 3, save_temp = NULL) {
+census_geo_api <- function(key, state, geo = "tract", age = FALSE, sex = FALSE, retry = 3, save_temp = NULL, counties = NULL) {
   
   if (missing(key)) {
     stop('Must enter U.S. Census API key, which can be requested at https://api.census.gov/data/key_signup.html.')
@@ -105,7 +107,15 @@ census_geo_api <- function(key, state, geo = "tract", age = FALSE, sex = FALSE, 
     region_county <- paste("for=county:*&in=state:", state.fips, sep = "")
     message("Getting county list for state")
     county_df <- get_census_api("https://api.census.gov/data/2010/dec/sf1?", key = key, vars = vars, region = region_county, retry)
-    county_list <- county_df$county
+    
+    if(is.null(counties)) {
+      county_list <- county_df$county
+    } else {
+      county_list <- intersect(counties, county_df$county)
+    }
+    
+    if(length(county_list) == 0) 
+      return(census)
     
     message('Running tract by county...')
     
@@ -126,7 +136,15 @@ census_geo_api <- function(key, state, geo = "tract", age = FALSE, sex = FALSE, 
     
     region_county <- paste("for=county:*&in=state:", state.fips, sep = "")
     county_df <- get_census_api("https://api.census.gov/data/2010/dec/sf1?", key = key, vars = vars, region = region_county, retry)
-    county_list <- county_df$county
+    
+    if(is.null(counties)) {
+      county_list <- county_df$county
+    } else {
+      county_list <- intersect(counties, county_df$county)
+    }
+    
+    if(length(county_list) == 0) 
+      return(census)
 
     message('Running block by county...')
     
